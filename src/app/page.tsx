@@ -154,7 +154,7 @@ export default function Home() {
                     <p className="text-gray-600">{testimonials[activeTestimonial].role}</p>
                   </div>
                 </div>
-                <p className="text-gray-700 text-lg italic">"{testimonials[activeTestimonial].content}"</p>
+                <p className="text-gray-700 text-lg italic">&quot;{testimonials[activeTestimonial].content}&quot;</p>
               </motion.div>
             </AnimatePresence>
 

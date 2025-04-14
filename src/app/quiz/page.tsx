@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 
 type QuizCategory = {
   id: string;
@@ -92,24 +91,7 @@ export default function QuizPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    if (currentCategory && !showScore) {
-      setTimeLeft(currentCategory.questions[currentQuestion].timeLimit);
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            handleAnswerClick('');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [currentCategory, currentQuestion, showScore]);
-
-  const handleAnswerClick = (selectedAnswer: string) => {
+  const handleAnswerClick = useCallback((selectedAnswer: string) => {
     if (isAnimating) return;
     setIsAnimating(true);
     setSelectedAnswer(selectedAnswer);
@@ -135,7 +117,24 @@ export default function QuizPage() {
         setShowScore(true);
       }
     }, 1500);
-  };
+  }, [currentCategory, currentQuestion, isAnimating, score, streak, maxStreak]);
+
+  useEffect(() => {
+    if (currentCategory && !showScore) {
+      setTimeLeft(currentCategory.questions[currentQuestion].timeLimit);
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleAnswerClick('');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [currentCategory, currentQuestion, showScore, handleAnswerClick]);
 
   const resetQuiz = () => {
     setCurrentQuestion(0);
