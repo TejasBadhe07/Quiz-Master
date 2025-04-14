@@ -1,8 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
+
+interface Testimonial {
+  name: string;
+  role: string;
+  content: string;
+  avatar: string;
+}
 
 const features = [
   {
@@ -31,7 +38,7 @@ const features = [
   }
 ];
 
-const testimonials = [
+const testimonials: Testimonial[] = [
   {
     name: "Sarah Johnson",
     role: "Quiz Enthusiast",
@@ -54,6 +61,14 @@ const testimonials = [
 
 export default function Home() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveTestimonial((current) => (current + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -122,55 +137,49 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-4">What Our Users Say</h2>
             <p className="text-xl text-gray-600">Join thousands of satisfied users</p>
           </motion.div>
 
-          <div className="relative">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonial}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.5 }}
-                className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto"
-              >
-                <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-2xl text-white">
-                    {testimonials[activeTestimonial].avatar}
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="text-lg font-semibold text-gray-900">{testimonials[activeTestimonial].name}</h4>
-                    <p className="text-gray-600">{testimonials[activeTestimonial].role}</p>
-                  </div>
+          <div className="relative h-[180px]">
+            <motion.div
+              key={activeTestimonial}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ 
+                duration: 0.8,
+                ease: "easeInOut"
+              }}
+              className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 p-5 max-w-xl mx-auto"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-xl text-white flex-shrink-0">
+                  {testimonials[activeTestimonial].avatar}
                 </div>
-                <p className="text-gray-700 text-lg italic">&quot;{testimonials[activeTestimonial].content}&quot;</p>
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="flex justify-center mt-8 space-x-4">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    activeTestimonial === index
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 w-6'
-                      : 'bg-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-base font-semibold text-gray-900">{testimonials[activeTestimonial].name}</h4>
+                      <p className="text-sm text-purple-600">{testimonials[activeTestimonial].role}</p>
+                    </div>
+                    <svg className="w-6 h-6 text-purple-200" fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
+                    </svg>
+                  </div>
+                  <p className="mt-3 text-base text-gray-600 leading-relaxed">&quot;{testimonials[activeTestimonial].content}&quot;</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
