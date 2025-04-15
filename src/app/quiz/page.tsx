@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+import { PowerUps } from '@/components/PowerUps';
 
 type QuizCategory = {
   id: string;
@@ -121,6 +123,7 @@ const categories: QuizCategory[] = [
 export default function QuizPage() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get('category');
+  const { userState, addXp, updateStreak, unlockAchievement } = useUser();
   
   const [currentCategory, setCurrentCategory] = useState<QuizCategory | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -132,6 +135,7 @@ export default function QuizPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [doublePointsActive, setDoublePointsActive] = useState(false);
 
   useEffect(() => {
     if (categoryId) {
@@ -150,25 +154,37 @@ export default function QuizPage() {
     
     const isCorrect = selectedAnswer === currentCategory?.questions[currentQuestion].correctAnswer;
     if (isCorrect) {
-      setScore(score + 1);
+      const points = doublePointsActive ? 2 : 1;
+      setScore(score + points);
       setStreak(streak + 1);
       setMaxStreak(Math.max(maxStreak, streak + 1));
+      addXp(points * 10);
+      updateStreak(true);
     } else {
       setStreak(0);
+      updateStreak(false);
+    }
+
+    if (isCorrect && streak + 1 >= 3) {
+      unlockAchievement('streak_3');
     }
 
     setTimeout(() => {
       setShowFeedback(false);
       setSelectedAnswer(null);
       setIsAnimating(false);
+      setDoublePointsActive(false);
       const nextQuestion = currentQuestion + 1;
       if (nextQuestion < (currentCategory?.questions.length || 0)) {
         setCurrentQuestion(nextQuestion);
       } else {
+        if (score === currentCategory?.questions.length) {
+          unlockAchievement('perfect_score');
+        }
         setShowScore(true);
       }
     }, 1500);
-  }, [currentCategory, currentQuestion, isAnimating, score, streak, maxStreak]);
+  }, [currentCategory, currentQuestion, isAnimating, score, streak, maxStreak, addXp, updateStreak, unlockAchievement, doublePointsActive]);
 
   useEffect(() => {
     if (currentCategory && !showScore) {
@@ -394,6 +410,7 @@ export default function QuizPage() {
           </AnimatePresence>
         </motion.div>
       </div>
+      {currentCategory && <PowerUps />}
     </div>
   );
 } 
