@@ -11,6 +11,17 @@ interface Testimonial {
   avatar: string;
 }
 
+interface QuizCategory {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  questions: number;
+  progress: number;
+  lastPlayed?: string;
+}
+
 const features = [
   {
     title: "Multiple Categories",
@@ -59,16 +70,63 @@ const testimonials: Testimonial[] = [
   }
 ];
 
+const quizCategories: QuizCategory[] = [
+  {
+    id: "general",
+    title: "General Knowledge",
+    description: "Test your knowledge across various topics",
+    icon: "📚",
+    color: "from-blue-500 to-blue-600",
+    questions: 20,
+    progress: 75,
+    lastPlayed: "2 hours ago"
+  },
+  {
+    id: "science",
+    title: "Science & Technology",
+    description: "Explore the world of science and innovation",
+    icon: "🔬",
+    color: "from-purple-500 to-purple-600",
+    questions: 15,
+    progress: 40,
+    lastPlayed: "1 day ago"
+  },
+  {
+    id: "history",
+    title: "World History",
+    description: "Journey through time and civilizations",
+    icon: "🏛️",
+    color: "from-amber-500 to-amber-600",
+    questions: 25,
+    progress: 0
+  },
+  {
+    id: "sports",
+    title: "Sports & Games",
+    description: "Test your sports knowledge and trivia",
+    icon: "⚽",
+    color: "from-green-500 to-green-600",
+    questions: 18,
+    progress: 100,
+    lastPlayed: "5 minutes ago"
+  }
+];
+
 export default function Home() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveTestimonial((current) => (current + 1) % testimonials.length);
-    }, 5000);
+    }, 4000);
 
     return () => clearInterval(timer);
   }, []);
+
+  const handleQuizStart = (categoryId: string) => {
+    window.location.href = `/quiz?category=${categoryId}`;
+  };
 
   return (
     <div className="min-h-screen">
@@ -100,6 +158,79 @@ export default function Home() {
               </Link>
             </motion.div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Quiz Categories Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Challenge</h2>
+            <p className="text-xl text-gray-600">Explore our diverse quiz categories</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {quizCategories.map((category) => (
+              <motion.div
+                key={category.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -5 }}
+                onHoverStart={() => setHoveredCard(category.id)}
+                onHoverEnd={() => setHoveredCard(null)}
+                transition={{ duration: 0.3 }}
+                className={`relative bg-white rounded-2xl shadow-md overflow-hidden group cursor-pointer`}
+                onClick={() => handleQuizStart(category.id)}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-2xl text-white">
+                      {category.icon}
+                    </div>
+                    {category.lastPlayed && (
+                      <span className="text-xs text-gray-500">{category.lastPlayed}</span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{category.description}</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>{category.questions} questions</span>
+                      <span>{category.progress}% complete</span>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${category.progress}%` }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className={`h-full bg-gradient-to-r ${category.color}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: hoveredCard === category.id ? 1 : 0 }}
+                  className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 backdrop-blur-sm flex items-center justify-center"
+                >
+                  <motion.div
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: hoveredCard === category.id ? 1 : 0.8 }}
+                    className="bg-white px-4 py-2 rounded-full text-sm font-medium text-purple-600 shadow-lg"
+                  >
+                    Start Quiz
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

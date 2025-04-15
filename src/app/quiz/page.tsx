@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 
 type QuizCategory = {
   id: string;
@@ -76,10 +77,51 @@ const categories: QuizCategory[] = [
         timeLimit: 15
       }
     ]
+  },
+  {
+    id: 'sports',
+    name: 'Sports',
+    icon: '⚽',
+    color: 'from-green-500 to-green-600',
+    questions: [
+      {
+        question: 'Who was the winning captain of FIFA World Cup 2022?',
+        options: ['Lionel Messi', 'Kylian Mbappé', 'Luka Modrić', 'Cristiano Ronaldo'],
+        correctAnswer: 'Lionel Messi',
+        timeLimit: 15
+      },
+      {
+        question: 'Which country won the most Olympic gold medals in 2020?',
+        options: ['United States', 'China', 'Japan', 'Great Britain'],
+        correctAnswer: 'United States',
+        timeLimit: 15
+      },
+      {
+        question: 'Who holds the record for most Grand Slam tennis titles?',
+        options: ['Roger Federer', 'Rafael Nadal', 'Novak Djokovic', 'Pete Sampras'],
+        correctAnswer: 'Novak Djokovic',
+        timeLimit: 15
+      },
+      {
+        question: 'Which team has won the most NBA championships?',
+        options: ['Los Angeles Lakers', 'Boston Celtics', 'Chicago Bulls', 'Golden State Warriors'],
+        correctAnswer: 'Boston Celtics',
+        timeLimit: 15
+      },
+      {
+        question: 'Who is the all-time leading scorer in the Premier League?',
+        options: ['Alan Shearer', 'Wayne Rooney', 'Harry Kane', 'Sergio Agüero'],
+        correctAnswer: 'Alan Shearer',
+        timeLimit: 15
+      }
+    ]
   }
 ];
 
 export default function QuizPage() {
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get('category');
+  
   const [currentCategory, setCurrentCategory] = useState<QuizCategory | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -90,6 +132,15 @@ export default function QuizPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (categoryId) {
+      const category = categories.find(cat => cat.id === categoryId);
+      if (category) {
+        setCurrentCategory(category);
+      }
+    }
+  }, [categoryId]);
 
   const handleAnswerClick = useCallback((selectedAnswer: string) => {
     if (isAnimating) return;
