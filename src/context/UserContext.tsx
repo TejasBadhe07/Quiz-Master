@@ -18,6 +18,7 @@ interface UserState {
   totalXp: number;
   streak: number;
   maxStreak: number;
+  highestStreak: number;
   achievements: Achievement[];
   powerUps: {
     extraTime: number;
@@ -28,6 +29,8 @@ interface UserState {
     soundEffects: boolean;
     darkMode: boolean;
     animations: boolean;
+    difficulty: 'easy' | 'medium' | 'hard';
+    timerMode: boolean;
   };
 }
 
@@ -72,6 +75,7 @@ const initialUserState: UserState = {
   totalXp: 0,
   streak: 0,
   maxStreak: 0,
+  highestStreak: 0,
   achievements: initialAchievements,
   powerUps: {
     extraTime: 3,
@@ -81,7 +85,9 @@ const initialUserState: UserState = {
   settings: {
     soundEffects: true,
     darkMode: false,
-    animations: true
+    animations: true,
+    difficulty: 'medium',
+    timerMode: false
   }
 };
 
@@ -92,6 +98,7 @@ interface UserContextType {
   unlockAchievement: (achievementId: string) => void;
   usePowerUp: (type: 'extraTime' | 'skipQuestion' | 'doublePoints') => void;
   toggleSetting: (setting: keyof UserState['settings']) => void;
+  updateUserState: (updates: Partial<UserState>) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -196,6 +203,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateUserState = (updates: Partial<UserState>) => {
+    setUserState(prev => {
+      const newState = { ...prev, ...updates };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userState', JSON.stringify(newState));
+      }
+      return newState;
+    });
+  };
+
   return (
     <UserContext.Provider value={{
       userState,
@@ -203,7 +220,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       updateStreak,
       unlockAchievement,
       usePowerUp,
-      toggleSetting
+      toggleSetting,
+      updateUserState
     }}>
       {children}
     </UserContext.Provider>
