@@ -18,7 +18,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   }, [userState.settings.darkMode]);
   
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${userState.settings.darkMode ? 'dark bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+    <div className="min-h-screen transition-colors duration-300 bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-8">
